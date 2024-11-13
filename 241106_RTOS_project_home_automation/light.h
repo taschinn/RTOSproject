@@ -7,20 +7,4 @@
 void light_Init();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif

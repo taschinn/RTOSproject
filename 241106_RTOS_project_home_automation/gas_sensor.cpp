@@ -1,8 +1,8 @@
 #include "I2C_interface.h"
 #include "gas_sensor.h"
+#include "DHT.h"
 
 #define GAS_ADDRESS 0x01
-
 #define GAS_APP_CPU 1
 #define GAS_PERIOD_MS 500
 
@@ -10,9 +10,7 @@ void gasTask(void *parameters) {
 
   // Loop forever
   while (1) {
-
     // Take mutex prior to critical section
-
     if (xSemaphoreTake(I2Cintf_mutex, 10) == pdTRUE) {
 
       for (;;)
@@ -30,7 +28,6 @@ void gasTask(void *parameters) {
 }
 
 void gas_Init() {
-
   //Task 1
   xTaskCreatePinnedToCore(gasTask,
                           "GAS task",
