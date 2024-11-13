@@ -1,7 +1,7 @@
 #include "I2C_interface.h"
 #include "gas_sensor.h"
 
-#define GAS_ADDRESS 0x01
+#define GAS_ADDRESS 0x59
 
 #define GAS_APP_CPU 1
 #define GAS_PERIOD_MS 500

@@ -1,4 +1,3 @@
-#include <Adafruit_SSD1306.h>
 #include "display.h"
 #include "I2C_interface.h"
 

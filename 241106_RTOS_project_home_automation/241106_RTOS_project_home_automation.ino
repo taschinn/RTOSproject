@@ -13,7 +13,7 @@ void setup() {
   Serial.println("I2C initialization done");
   // temp_Init();
   // gas_Init();
-  // light_Init();
+  light_Init();
   display_Init();
   Serial.println("Display initialization done");
 }

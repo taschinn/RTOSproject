@@ -2,6 +2,7 @@
 #define DISPLAY_H_
 
 #include <FreeRTOS.h>
+#include <Adafruit_SSD1306.h>
 #include <queue.h>
 #include <semphr.h>
 

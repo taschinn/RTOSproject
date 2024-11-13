@@ -20,7 +20,7 @@ portMUX_TYPE muxState = portMUX_INITIALIZER_UNLOCKED;
 void lightTask(void *parameters) {
   int analogValue = 0;
   DisplayMessage msg;
-  msg.name = SensorType.LIGHT;
+  msg.name = LIGHT;
 
   // Loop forever
   while (1) {
@@ -29,6 +29,7 @@ void lightTask(void *parameters) {
         analogValue = analogRead(LIGHT_POTI_PIN);
         neopixelWrite(RGB_BUILTIN, analogValue, analogValue, analogValue);
       } else {  // Light off
+        analogValue = 0;
         neopixelWrite(RGB_BUILTIN, 0, 0, 0);
       }
 
