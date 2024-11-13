@@ -20,7 +20,7 @@ void displayTask(void *parameters) {
 
   // Loop forever
   while (1) {
-    if (uxQueueMessagesWaiting(display_queue) == 0) {  // No new messages
+    if (uxQueueMessagesWaiting(display_queue) == 0) {  // No new message
       if (xQueueReceive(display_queue, &msg, 0) == pdTRUE) {
         printInDisplay(msg, fire_alarm_on);
       }
@@ -41,10 +41,10 @@ void printInDisplay(DisplayMessage msg, String fire_alarm) {
     display.setTextSize(2);
     switch (msg.name) {
       case TEMP;
-        paintValue(5, 5, msg.value + "ºC");
+        paintValue(5, 5, msg.value + "C");
         break;
       case GAS:
-        paintValue(SCREEN_WIDTH / 2 + 5, 0, msg.value + "ppm");
+        paintValue(SCREEN_WIDTH / 2 + 5, 5, msg.value + "ppm");
         break;
       case LIGHT:
         paintValue(5, SCREEN_HEIGHT / 2 + 5, "G" + msg.value + "%");
@@ -68,10 +68,11 @@ void printInDisplay(DisplayMessage msg, String fire_alarm) {
 }
 
 void printFirstTime() {
+  display.clearDisplay();
   display.drawLine(SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT, SSD1306_WHITE);
   display.drawLine(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, SSD1306_WHITE);
-  paintValue(5, 5, "0ºC");
-  paintValue(SCREEN_WIDTH / 2 + 5, 0, "0ppm");
+  paintValue(5, 5, "0C");
+  paintValue(SCREEN_WIDTH / 2 + 5, 5, "0ppm");
   paintValue(5, SCREEN_HEIGHT / 2 + 5, "G0%");
   paintValue(SCREEN_WIDTH / 2 + 5, SCREEN_HEIGHT / 2 + 5, "V0%");
 
@@ -99,11 +100,10 @@ void display_Init() {
   }
 
   // Clean screen and set up text format values
-  display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
 
-  displayQueue = xQueueCreate(display_queue_len, sizeof(DisplayMessage));
+  display_queue = xQueueCreate(display_queue_len, sizeof(DisplayMessage));
 
   printFirstTime();
 

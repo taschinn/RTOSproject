@@ -17,7 +17,7 @@ volatile bool state = false;  // Remembers the actual state of the lighting
 portMUX_TYPE muxState = portMUX_INITIALIZER_UNLOCKED;
 
 void lightTask(void *parameters) {
-  int analogValue;
+  int analogValue = 0;
 
   // Loop forever
   while (1) {
@@ -28,6 +28,7 @@ void lightTask(void *parameters) {
       } else {  // Light off
         neopixelWrite(RGB_BUILTIN, 0, 0, 0);
       }
+      
     } else {  // Fire alarm
       neopixelWrite(RGB_BUILTIN, 100, 100, 100);
     }

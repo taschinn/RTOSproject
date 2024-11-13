@@ -15,7 +15,7 @@ enum SensorType {
 
 // Queue message structure
 typedef struct {
-    SensotType name;
+    SensorType name;
     String value;
 } DisplayMessage;
 
