@@ -17,8 +17,8 @@ void setup() {
 
   // Initialize modules
   I2Cintf_Init();
-  // temp_Init();
   gas_Init();
+  temp_Init();
   // light_Init();
   display_Init();
   Serial.println("Initializations done");

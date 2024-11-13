@@ -1,41 +1,47 @@
+#include "projdefs.h"
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
 #include "I2C_interface.h"
 #include "temperature_sensor.h"
+#include "display.h"
 
-#define TEMP_ADDRESS 0x00
+#define DHTTYPE DHT22  // DHT 22 (AM2302)
 
 #define TEMP_APP_CPU 1
-#define TEMP_PERIOD_MS 2000 // Not faster than 0.5Hz
+#define TEMP_PERIOD_MS 2000  // Not faster than 0.5Hz
+
+static DHT dht(TEMP_PIN, DHTTYPE);
 
 void tempTask(void *parameters) {
+  float temp, hum;
+  DisplayMessage msg;
 
-  float temp_localvar;
+  // Wait until the sensor gets ready
+  vTaskDelay(pdMS_TO_TICKS(500));
 
   // Loop forever
-  while (1) {
+  while (1) { 
+    temp = dht.readTemperature();
+    hum = dht.readHumidity();
 
-    // Take mutex prior to critical section
+    // Send temperature value to other modules
+    xQueueSend(temp_queue, &temp, pdMS_TO_TICKS(50));
 
-    if (xSemaphoreTake(I2Cintf_mutex, 10) == pdTRUE) {
-
-      for (;;)
-        ;  // todo read sensor value
-
-      // Give mutex after critical
-      xSemaphoreGive(I2Cintf_mutex);
-
-    } else {
-      // Do something else
-    }
-
-    xQueueSend(temp_queue, (void *)&temp_localvar, 10);
+    // Send value to display
+    msg.name = TEMP;
+    msg.value = String(temp, 1);
+    xQueueSend(display_queue, &msg, pdMS_TO_TICKS(50));
 
     vTaskDelay(pdMS_TO_TICKS(TEMP_PERIOD_MS));
   }
 }
 
 void temp_Init() {
+  // Sensor initialization
+  dht.begin();
 
-  //Task 1
+  // Create task
   xTaskCreatePinnedToCore(tempTask,
                           "Temp task",
                           2048,
@@ -44,6 +50,7 @@ void temp_Init() {
                           NULL,
                           TEMP_APP_CPU);
 
-
+  // Create queue
   temp_queue = xQueueCreate(temp_queue_len, sizeof(float));
+
 }
