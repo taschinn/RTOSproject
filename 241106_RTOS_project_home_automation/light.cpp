@@ -5,6 +5,7 @@
 #include "esp32-hal-adc.h"
 #include "light.h"
 #include "fire_alarm.h"
+#include "display.h"
 
 #define LIGHT_APP_CPU 1
 #define LIGHT_PERIOD_MS 500
@@ -18,6 +19,8 @@ portMUX_TYPE muxState = portMUX_INITIALIZER_UNLOCKED;
 
 void lightTask(void *parameters) {
   int analogValue = 0;
+  DisplayMessage msg;
+  msg.name = SensorType.LIGHT;
 
   // Loop forever
   while (1) {
@@ -28,7 +31,9 @@ void lightTask(void *parameters) {
       } else {  // Light off
         neopixelWrite(RGB_BUILTIN, 0, 0, 0);
       }
-      
+
+      msg.value = analogValue;
+      xQueueSend(display_queue, &msg, portMAX_DELAY);
     } else {  // Fire alarm
       neopixelWrite(RGB_BUILTIN, 100, 100, 100);
     }

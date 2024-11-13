@@ -1,5 +1,8 @@
+#include <Adafruit_SSD1306.h>
 #include "display.h"
 #include "I2C_interface.h"
+
+#define DISPLAY_PERIOD_MS 500
 
 // Display
 #define SCREEN_WIDTH 128  // OLED display width, in pixels
@@ -14,47 +17,51 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define SDA0_Pin 6  // select ESP32  I2C pins
 #define SCL0_Pin 5
 
+QueueHandle_t display_queue;
+
 void displayTask(void *parameters) {
   DisplayMessage msg;  //temp (12ºC), gas (25ppm), light (L80%), ventilation (V67%), fire_alarm
   String fire_alarm = "OFF";
 
   // Loop forever
   while (1) {
-    if (uxQueueMessagesWaiting(display_queue) == 0) {  // No new message
+    if (uxQueueMessagesWaiting(display_queue) != 0) {  // No new messages
       if (xQueueReceive(display_queue, &msg, 0) == pdTRUE) {
-        printInDisplay(msg, fire_alarm_on);
+        if (msg.name == FIRE_ALARM) {
+          fire_alarm = msg.value;
+          if (fire_alarm.equals("OFF")) {
+            printFirstTime();
+          }
+        }
+        printInDisplay(msg, fire_alarm);
       }
     }
-    vTaskDelay(pdMS_TO_TICKS(VENT_PERIOD_MS));
+    vTaskDelay(pdMS_TO_TICKS(DISPLAY_PERIOD_MS));
   }
 }
 
 void printInDisplay(DisplayMessage msg, String fire_alarm) {
-  if (msg.name == FIRE_ALARM) {
-    fire_alarm = msg.value;
-    if (fire_alarm.equals("OFF")) {
-      printFirstTime();
-    }
-  }
 
-  if (fire_alarm_on.equals("OFF")) {
-    display.setTextSize(2);
+  Serial.print(msg.name);
+  Serial.print(msg.value);
+  if (fire_alarm.equals("OFF")) {
+    Serial.println("ENTERED");
+    display.setTextSize(1);
     switch (msg.name) {
-      case TEMP;
+      case TEMP:
         paintValue(5, 5, msg.value + "C");
         break;
       case GAS:
-        paintValue(SCREEN_WIDTH / 2 + 5, 5, msg.value + "ppm");
+        paintValue(SCREEN_WIDTH / 2 + 10, 5, msg.value + "ppm");
         break;
       case LIGHT:
-        paintValue(5, SCREEN_HEIGHT / 2 + 5, "G" + msg.value + "%");
+        paintValue(5, SCREEN_HEIGHT / 2 + 10, "G" + msg.value + "%");
         break;
       case VENTILATION:
-        paintValue(SCREEN_WIDTH / 2 + 5, SCREEN_HEIGHT / 2 + 5, "V" + msg.value + "%");
+        paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V" + msg.value + "%");
         break;
     }
-  }
-  else {
+  } else {
     display.clearDisplay();
     display.setTextSize(3);
     display.setCursor(32, 22);
@@ -69,12 +76,13 @@ void printInDisplay(DisplayMessage msg, String fire_alarm) {
 
 void printFirstTime() {
   display.clearDisplay();
+  display.setTextSize(1);
   display.drawLine(SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT, SSD1306_WHITE);
   display.drawLine(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, SSD1306_WHITE);
   paintValue(5, 5, "0C");
-  paintValue(SCREEN_WIDTH / 2 + 5, 5, "0ppm");
-  paintValue(5, SCREEN_HEIGHT / 2 + 5, "G0%");
-  paintValue(SCREEN_WIDTH / 2 + 5, SCREEN_HEIGHT / 2 + 5, "V0%");
+  paintValue(SCREEN_WIDTH / 2 + 10, 5, "0ppm");
+  paintValue(5, SCREEN_HEIGHT / 2 + 10, "G0%");
+  paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V0%");
 
   if (xSemaphoreTake(I2Cintf_mutex, portMAX_DELAY) == pdTRUE) {
     display.display();
@@ -83,7 +91,7 @@ void printFirstTime() {
 }
 
 void paintValue(int x, int y, String text) {
-  display.fillRect(x, y, 64, 32, SSD1306_BLACK);
+  display.fillRect(x, y, 55, 25, SSD1306_BLACK);
   display.setCursor(x, y);
   display.println(text);
 }
@@ -100,7 +108,6 @@ void display_Init() {
   }
 
   // Clean screen and set up text format values
-  display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
 
   display_queue = xQueueCreate(display_queue_len, sizeof(DisplayMessage));
@@ -110,7 +117,7 @@ void display_Init() {
   // Create task
   xTaskCreatePinnedToCore(displayTask,
                           "Display task",
-                          2048,
+                          2024,
                           NULL,
                           2,
                           NULL,
