@@ -60,4 +60,6 @@ void vent_Init() {
                           2,
                           NULL,
                           VENT_APP_CPU);
+
+  displayQueue = xQueueCreate(10, sizeof(DisplayMessage));
 }
