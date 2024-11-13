@@ -4,22 +4,8 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
+static const uint16_t gas_limitFireAlarm = 200;
+
 void gas_Init();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

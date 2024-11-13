@@ -41,10 +41,10 @@ void displayTask(void *parameters) {
 
 void printInDisplay(DisplayMessage msg, String fire_alarm) {
 
-  Serial.print(msg.name);
-  Serial.print(msg.value);
+  // Serial.print(msg.name);
+  // Serial.print(msg.value);
   if (fire_alarm.equals("OFF")) {
-    Serial.println("ENTERED");
+    // Serial.println("ENTERED");
     display.setTextSize(1);
     switch (msg.name) {
       case TEMP:
@@ -54,10 +54,10 @@ void printInDisplay(DisplayMessage msg, String fire_alarm) {
         paintValue(SCREEN_WIDTH / 2 + 10, 5, msg.value + "ppm");
         break;
       case LIGHT:
-        paintValue(5, SCREEN_HEIGHT / 2 + 10, "G" + msg.value + "%");
+        paintValue(5, SCREEN_HEIGHT / 2 + 10, "L:" + msg.value + "%");
         break;
       case VENTILATION:
-        paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V" + msg.value + "%");
+        paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V:" + msg.value + "%");
         break;
     }
   } else {
@@ -80,8 +80,8 @@ void printFirstTime() {
   display.drawLine(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, SSD1306_WHITE);
   paintValue(5, 5, "0C");
   paintValue(SCREEN_WIDTH / 2 + 10, 5, "0ppm");
-  paintValue(5, SCREEN_HEIGHT / 2 + 10, "G0%");
-  paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V0%");
+  paintValue(5, SCREEN_HEIGHT / 2 + 10, "L:0%");
+  paintValue(SCREEN_WIDTH / 2 + 10, SCREEN_HEIGHT / 2 + 10, "V:0%");
 
   if (xSemaphoreTake(I2Cintf_mutex, portMAX_DELAY) == pdTRUE) {
     display.display();

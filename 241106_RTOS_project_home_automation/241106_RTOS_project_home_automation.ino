@@ -4,33 +4,49 @@
 #include "light.h"
 #include "display.h"
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(115200);
+// #include "esp_task_wdt.h"
+#include <Adafruit_SGP40.h>
 
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) { delay(10); } // Wait for serial console to open!
   Serial.println("------------------------");
+
+  // Deactivate watchdog timer (for test purpose only)
+  // esp_task_wdt_deinit();
+
+  // Initialize modules
   I2Cintf_Init();
-  Serial.println("I2C initialization done");
   // temp_Init();
-  // gas_Init();
-  light_Init();
+  gas_Init();
+  // light_Init();
   display_Init();
-  Serial.println("Display initialization done");
+  Serial.println("Initializations done");
+
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // test_display();
 
+  
+
+}
+
+// --------------
+// Test functions
+// --------------
+void test_display() {
   DisplayMessage test;
   test.name = (SensorType)random(0, 4);
   test.value = "18.9";
 
-  Serial.print("test.name=");
-  Serial.print(test.name);
-  Serial.print(" test.value=");
-  Serial.println(test.value);
+  // Serial.print("test.name=");
+  // Serial.print(test.name);
+  // Serial.print(" test.value=");
+  // Serial.println(test.value);
 
-  Serial.flush();
+  // Serial.flush();
 
   xQueueSend(display_queue, &test, portMAX_DELAY);
   vTaskDelay(pdMS_TO_TICKS(500));
@@ -47,5 +63,4 @@ void loop() {
   xQueueSend(display_queue, &test, portMAX_DELAY);
 
   vTaskDelay(pdMS_TO_TICKS(500));
-
 }
