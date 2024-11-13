@@ -15,7 +15,7 @@ enum SensorType {
 
 // Queue message structure
 typedef struct {
-    SensotType name;
+    SensorType name;
     String value;
 } DisplayMessage;
 
@@ -23,7 +23,9 @@ static const uint8_t display_queue_len = 15;
 extern QueueHandle_t display_queue;
 
 void displayTask(void *parameters);
-void printInDisplay(DisplayMessage msg);
+void printInDisplay(DisplayMessage msg, String fire_alarm);
 void printFirstTime();
 void paintValue(int x, int y, String text);
 void display_Init();
+
+#endif
