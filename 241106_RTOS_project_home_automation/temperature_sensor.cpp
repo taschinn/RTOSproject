@@ -4,7 +4,7 @@
 #define TEMP_ADDRESS 0x00
 
 #define TEMP_APP_CPU 1
-#define TEMP_PERIOD_MS 500
+#define TEMP_PERIOD_MS 2000 // Not faster than 0.5Hz
 
 void tempTask(void *parameters) {
 
