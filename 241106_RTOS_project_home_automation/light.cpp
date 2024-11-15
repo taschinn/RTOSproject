@@ -9,7 +9,7 @@
 #include "display.h"
 
 #define LIGHT_APP_CPU 1
-#define LIGHT_PERIOD_MS 500
+#define LIGHT_PERIOD_MS 200
 
 volatile bool state = false;  // Remembers the actual state of the lighting
 // There is a critical section needed to access this variable, because it can be accessed out of an ISR or a task running on a separate core.
@@ -36,7 +36,11 @@ void lightTask(void *parameters) {
     if (uxQueueMessagesWaiting(fire_queue) == 0) {  // No fire alarm
       if (state == true) {                          // Light on
         analogValue = analogRead(LIGHT_POTI_PIN);
-        brightness = max(analogValue * 100 / 4095, 20); // Minimal light value when turned on is 20%
+        brightness = max(analogValue * 100 / 4095, 1); // Minimal light value when turned on is 20%
+        // Serial.print("LIGHT: brightness=");
+        // Serial.print(brightness);
+        // Serial.print(" analogValue=");
+        // Serial.println(analogValue);
 
       } else {  // Light off
         brightness = 0;
@@ -75,12 +79,11 @@ void light_SetState(bool stateNew) {
 }
 
 // Button debounce
-volatile unsigned long lastPressTime = 0;
-const unsigned long debounceDelayMs = 200;
+static volatile unsigned long lastPressTime = 0;
+static const unsigned long debounceDelayMs = 200;
 
 void IRAM_ATTR light_ISR() {
   // Interrupt subroutine
-
   // Debounce
   unsigned long currentTime = millis();
   if (currentTime - lastPressTime > debounceDelayMs) {

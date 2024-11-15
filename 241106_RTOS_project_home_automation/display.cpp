@@ -1,7 +1,7 @@
 #include "display.h"
 #include "I2C_interface.h"
 
-#define DISPLAY_PERIOD_MS 500
+#define DISPLAY_PERIOD_MS 50
 
 // Display
 #define SCREEN_WIDTH 128  // OLED display width, in pixels
@@ -24,6 +24,9 @@ void displayTask(void *parameters) {
 
   // Loop forever
   while (1) {
+    // Serial.print("DISPLAY: # elements=");
+    // Serial.println(uxQueueMessagesWaiting(display_queue));
+
     if (uxQueueMessagesWaiting(display_queue) != 0) {  // No new messages
       if (xQueueReceive(display_queue, &msg, 0) == pdTRUE) {
         if (msg.name == FIRE_ALARM) {
