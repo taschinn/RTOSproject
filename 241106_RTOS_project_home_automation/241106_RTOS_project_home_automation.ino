@@ -1,7 +1,9 @@
 #include "I2C_interface.h"
+#include "fire_alarm.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
 #include "light.h"
+#include "ventilation.h"
 #include "display.h"
 
 // #include "esp_task_wdt.h"
@@ -17,9 +19,11 @@ void setup() {
 
   // Initialize modules
   I2Cintf_Init();
+  fire_Init();
   gas_Init();
   temp_Init();
-  // light_Init();
+  light_Init();
+  vent_Init();
   display_Init();
   Serial.println("Initializations done");
 

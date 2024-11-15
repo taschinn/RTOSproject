@@ -12,10 +12,12 @@
 #define TEMP_PERIOD_MS 2000  // Not faster than 0.5Hz
 
 static DHT dht(TEMP_PIN, DHTTYPE);
+QueueHandle_t temp_queue;
 
 void tempTask(void *parameters) {
   float temp, hum;
   DisplayMessage msg;
+  msg.name = TEMP;
 
   // Wait until the sensor gets ready
   vTaskDelay(pdMS_TO_TICKS(500));
@@ -29,7 +31,6 @@ void tempTask(void *parameters) {
     xQueueSend(temp_queue, &temp, pdMS_TO_TICKS(50));
 
     // Send value to display
-    msg.name = TEMP;
     msg.value = String(temp, 1);
     xQueueSend(display_queue, &msg, pdMS_TO_TICKS(50));
 
