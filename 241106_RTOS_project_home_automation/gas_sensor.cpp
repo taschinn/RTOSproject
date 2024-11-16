@@ -47,10 +47,10 @@ void gasTask(void *parameters) {
     msg.value = voc;
     xQueueSend(display_queue, &msg, pdMS_TO_TICKS(50));
 
-    // // Set fire alarm if voc is bigger than the limit
-    // if (voc >= gas_limitFireAlarm) {
-    //   xSemaphoreGive(fire_sem);
-    // }
+    // Set fire alarm if voc is bigger than the limit
+    if (voc >= gas_limitFireAlarm) {
+      xSemaphoreGive(fire_sem);
+    }
 
     vTaskDelay(pdMS_TO_TICKS(GAS_PERIOD_MS));
   }

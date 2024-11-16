@@ -1,9 +1,13 @@
+#include "projdefs.h"
 #include "freertos/portmacro.h"
 #include <Arduino.h>
 #include "fire_alarm.h"
 #include "display.h"
+#include <driver/ledc.h>
 
 #define FIRE_APP_CPU 1
+#define FIRE_PWM_CHANNEL 0
+#define FIRE_PWM_FREQUENCY 50
 
 QueueHandle_t fire_queue;
 SemaphoreHandle_t fire_sem;
@@ -55,7 +59,7 @@ void IRAM_ATTR fire_resetISR() {
   }
 }
 
-void fireTask(void *parameters) {
+void fireTask(void* parameters) {
   DisplayMessage msg;
   msg.name = FIRE_ALARM;
 
@@ -73,16 +77,23 @@ void fireTask(void *parameters) {
     Serial.println(uxQueueMessagesWaiting(fire_queue));
     Serial.println();
 
-    // Start buzzer
-
     // Send value to display
     msg.value = "ON";
     xQueueSend(display_queue, &msg, portMAX_DELAY);
 
     // Wait until fire alarm is resetted
-    while (uxQueueMessagesWaiting(fire_queue) != 0) {}
+    while (uxQueueMessagesWaiting(fire_queue) != 0) {
+      // Start buzzer
+      analogWrite(FIRE_BUZZER_PIN, 255 / 2);
+      // ledcWrite(FIRE_PWM_CHANNEL, 255 / 2);
+      vTaskDelay(pdMS_TO_TICKS(400));
+      analogWrite(FIRE_BUZZER_PIN, 0);
+      vTaskDelay(pdMS_TO_TICKS(50));
+    }
 
     // Reset buzzer
+    analogWrite(FIRE_BUZZER_PIN, 0);
+    // ledcWrite(FIRE_PWM_CHANNEL, 0);
 
     // Send value to display
     msg.value = "OFF";
@@ -94,6 +105,11 @@ void fire_Init() {
   // Configurate pins
   pinMode(FIRE_BUTTON_PIN, INPUT_PULLDOWN);
   pinMode(FIRE_RESET_PIN, INPUT_PULLDOWN);
+  pinMode(FIRE_BUZZER_PIN, OUTPUT);
+  analogWriteFrequency(FIRE_BUZZER_PIN, FIRE_PWM_FREQUENCY);
+  analogWriteResolution(FIRE_BUZZER_PIN, 8);
+  // ledcSetup(FIRE_PWM_CHANNEL, FIRE_PWM_FREQUENCY, 8);
+  // ledcAttachPin(FIRE_BUZZER_PIN, FIRE_PWM_CHANNEL);
 
   // Configurate ISRs
   attachInterrupt(FIRE_BUTTON_PIN, fire_buttonISR, RISING);
