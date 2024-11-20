@@ -47,7 +47,7 @@ void lightTask(void *parameters) {
         // neopixelWrite(RGB_BUILTIN, 0, 0, 0);
       }
       // neopixelWrite(RGB_BUILTIN, brightness, brightness, brightness);
-      analogWrite(LIGHT_OUTPUT_PIN, brightness * 250 / 100);
+      analogWrite(LIGHT_OUTPUT_PIN, brightness * 255 / 100);
 
       // Send value to display
       msg.value = brightness;
