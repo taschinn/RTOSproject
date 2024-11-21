@@ -4,8 +4,10 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
+#define TEMP_PIN 7
+
 static const uint8_t temp_queue_len = 5;
-static QueueHandle_t temp_queue;
+extern QueueHandle_t temp_queue;
 
 void temp_Init();
 
